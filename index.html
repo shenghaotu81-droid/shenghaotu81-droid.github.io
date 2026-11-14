@@ -5,16 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>涂盛皓</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #0b1120; color: #e2e8f0; }
-    h1 { font-weight: 300; letter-spacing: 0.08em; }
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #050508; color: #e2e8f0; }
+    h1 { font-weight: 300; letter-spacing: 0.08em; position: relative; }
+    h1::before, h1::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; }
+    h1::before { color: #00f0ff; animation: glitch 3s infinite steps(1); clip-path: inset(20% 0 40% 0); transform: translate(-2px, 0); opacity: 0; }
+    h1::after { color: #ff003c; animation: glitch 3s infinite steps(1) reverse; clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); opacity: 0; }
+    @keyframes glitch { 0%, 92% { opacity: 0; } 93%, 96% { opacity: 0.8; } 97%, 100% { opacity: 0; } }
     p { color: #94a3b8; }
-    #scene { height: 420px; border-radius: 12px; overflow: hidden; }
+    .tag { color: #fcee0a; letter-spacing: 0.3em; font-size: 12px; }
+    #scene { height: 420px; overflow: hidden; clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
     #scene canvas { display: block; }
+    .scanlines { position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px); }
   </style>
 </head>
 <body>
-  <h1>涂盛皓</h1>
+  <div class="scanlines"></div>
+  <h1 data-text="涂盛皓">涂盛皓</h1>
   <p>香港科技大学（广州）大一学生，机器人 / AI 方向。</p>
+  <p class="tag">/// NIGHT CITY</p>
   <div id="scene"></div>
   <p>拖动旋转，滚轮缩放。</p>
 
@@ -37,8 +45,8 @@
 
     const container = document.getElementById('scene');
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0f172a);
-    scene.fog = new THREE.Fog(0x0f172a, 9, 18);
+    scene.background = new THREE.Color(0x050508);
+    scene.fog = new THREE.Fog(0x050508, 9, 20);
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
     camera.position.set(3.2, 2.2, 4.2);
@@ -62,27 +70,42 @@
 
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 0.45, 0.4, 0.7);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 0.6, 0.4, 0.55);
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x334155, 1.2));
-    const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x1a1a2e, 0.9));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.6);
     sun.position.set(4, 6, 3);
     sun.castShadow = true;
     scene.add(sun);
 
     const ground = new THREE.Mesh(
       new THREE.CircleGeometry(2.2, 48),
-      new THREE.MeshStandardMaterial({ color: 0x1e293b })
+      new THREE.MeshStandardMaterial({ color: 0x0a0a12 })
     );
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const metal = new THREE.MeshStandardMaterial({ color: 0x94a3b8, flatShading: true, metalness: 0.6, roughness: 0.35 });
-    const dark = new THREE.MeshStandardMaterial({ color: 0x0f172a, flatShading: true, roughness: 0.6 });
-    const accent = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 2, flatShading: true, roughness: 0.4 });
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(2.2, 2.32, 64),
+      new THREE.MeshBasicMaterial({ color: 0xfcee0a, side: THREE.DoubleSide })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.01;
+    scene.add(ring);
+
+    const grid = new THREE.GridHelper(12, 24, 0x00f0ff, 0x1a2f4a);
+    grid.material.transparent = true;
+    grid.material.opacity = 0.3;
+    grid.position.y = -0.01;
+    scene.add(grid);
+
+    const metal = new THREE.MeshStandardMaterial({ color: 0x8a8f98, flatShading: true, metalness: 0.7, roughness: 0.3 });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x0a0a12, flatShading: true, roughness: 0.6 });
+    const yellowGlow = new THREE.MeshStandardMaterial({ color: 0xfcee0a, emissive: 0xfcee0a, emissiveIntensity: 2.5, flatShading: true, roughness: 0.4 });
+    const pinkGlow = new THREE.MeshStandardMaterial({ color: 0xff003c, emissive: 0xff003c, emissiveIntensity: 2, flatShading: true, roughness: 0.4 });
 
     const robot = new THREE.Group();
     function part(geo, mat, x, y, z) {
@@ -94,26 +117,55 @@
     }
     part(new THREE.BoxGeometry(0.9, 0.9, 0.6), metal, 0, 1.05, 0);
     part(new THREE.BoxGeometry(0.6, 0.5, 0.5), metal, 0, 1.75, 0);
-    part(new THREE.BoxGeometry(0.08, 0.08, 0.02), dark, -0.14, 1.77, 0.26);
-    part(new THREE.BoxGeometry(0.08, 0.08, 0.02), dark, 0.14, 1.77, 0.26);
+    part(new THREE.BoxGeometry(0.08, 0.08, 0.02), yellowGlow, -0.14, 1.77, 0.26);
+    part(new THREE.BoxGeometry(0.08, 0.08, 0.02), yellowGlow, 0.14, 1.77, 0.26);
     part(new THREE.CylinderGeometry(0.03, 0.03, 0.3), metal, 0, 2.15, 0);
-    part(new THREE.SphereGeometry(0.06, 12, 12), accent, 0, 2.32, 0);
+    part(new THREE.SphereGeometry(0.06, 12, 12), pinkGlow, 0, 2.32, 0);
     part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, -0.58, 1.05, 0);
     part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, 0.58, 1.05, 0);
     part(new THREE.BoxGeometry(0.28, 0.6, 0.3), dark, -0.22, 0.3, 0);
     part(new THREE.BoxGeometry(0.28, 0.6, 0.3), dark, 0.22, 0.3, 0);
     scene.add(robot);
 
+    const buildingMat = new THREE.MeshStandardMaterial({ color: 0x0b0b14, roughness: 0.9 });
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2 + Math.random() * 0.3;
+      const r = 6.5 + Math.random() * 2.5;
+      const w = 0.9 + Math.random() * 0.9;
+      const h = 1.5 + Math.random() * 3.5;
+      const d = 0.9 + Math.random() * 0.9;
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), buildingMat);
+      b.position.set(Math.cos(a) * r, h / 2, Math.sin(a) * r);
+      scene.add(b);
+      const dir = new THREE.Vector3(Math.cos(a), 0, Math.sin(a));
+      const nWin = 1 + Math.floor(Math.random() * 3);
+      for (let j = 0; j < nWin; j++) {
+        const win = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.12, 0.18),
+          new THREE.MeshBasicMaterial({ color: Math.random() < 0.5 ? 0xfcee0a : 0x00f0ff })
+        );
+        win.position.copy(b.position).addScaledVector(dir, -(d / 2 + 0.01));
+        win.position.y = 0.5 + Math.random() * (h - 0.8);
+        win.lookAt(0, win.position.y, 0);
+        scene.add(win);
+      }
+    }
+
+    const dustCount = 150;
     const dustGeo = new THREE.BufferGeometry();
-    const dustCount = 120;
     const pos = new Float32Array(dustCount * 3);
+    const col = new Float32Array(dustCount * 3);
+    const palette = [new THREE.Color(0x00f0ff), new THREE.Color(0xff003c), new THREE.Color(0xfcee0a)];
     for (let i = 0; i < dustCount; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 10;
       pos[i * 3 + 1] = Math.random() * 4;
       pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
+      const c = palette[Math.floor(Math.random() * 3)];
+      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
     }
     dustGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0x7dd3fc, size: 0.03, transparent: true, opacity: 0.5, depthWrite: false }));
+    dustGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ size: 0.04, vertexColors: true, transparent: true, opacity: 0.7, depthWrite: false }));
     scene.add(dust);
 
     window.addEventListener('resize', () => {
