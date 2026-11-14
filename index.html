@@ -109,16 +109,25 @@
     scene.add(grid);
 
     const loader = new GLTFLoader();
-    let mixer;
-    loader.load('models/RobotExpressive.glb', (gltf) => {
-      const robot = gltf.scene;
-      robot.scale.setScalar(0.55);
-      robot.traverse((o) => { if (o.isMesh) o.castShadow = true; });
-      scene.add(robot);
-      mixer = new THREE.AnimationMixer(robot);
-      const idle = gltf.animations.find((a) => a.name === 'Idle');
-      if (idle) mixer.clipAction(idle).play();
-    });
+    const mixers = [];
+    let flamingo;
+    function loadModel(url, scale, pos, animName, onLoad) {
+      loader.load(url, (gltf) => {
+        const m = gltf.scene;
+        m.scale.setScalar(scale);
+        m.position.set(pos[0], pos[1], pos[2]);
+        m.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+        scene.add(m);
+        const mixer = new THREE.AnimationMixer(m);
+        const clip = gltf.animations.find((a) => a.name === animName);
+        if (clip) mixer.clipAction(clip).play();
+        mixers.push(mixer);
+        if (onLoad) onLoad(m);
+      });
+    }
+    loadModel('models/RobotExpressive.glb', 0.55, [-0.9, 0, 0], 'Idle');
+    loadModel('models/Xbot.glb', 1.2, [0.9, 0, 0], 'idle');
+    loadModel('models/Flamingo.glb', 0.025, [0, 3, 0], 'flamingo_flyA_', (m) => { flamingo = m; });
 
     const buildingMat = new THREE.MeshStandardMaterial({ color: 0x0b0b14, roughness: 0.9 });
     for (let i = 0; i < 14; i++) {
@@ -171,7 +180,13 @@
     const clock = new THREE.Clock();
     renderer.setAnimationLoop(() => {
       const dt = clock.getDelta();
-      if (mixer) mixer.update(dt);
+      const t = clock.elapsedTime;
+      mixers.forEach((m) => m.update(dt));
+      if (flamingo) {
+        const a = t * 0.25;
+        flamingo.position.set(Math.cos(a) * 3.2, 3.0 + Math.sin(t * 0.8) * 0.3, Math.sin(a) * 3.2);
+        flamingo.rotation.y = -a;
+      }
       dust.rotation.y += 0.0004;
       controls.update();
       composer.render();
