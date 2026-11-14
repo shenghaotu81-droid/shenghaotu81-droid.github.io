@@ -2,10 +2,101 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>涂盛皓</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+    #scene { height: 420px; border-radius: 12px; overflow: hidden; }
+    #scene canvas { display: block; }
+  </style>
 </head>
 <body>
   <h1>涂盛皓</h1>
   <p>香港科技大学（广州）大一学生，机器人 / AI 方向。</p>
+  <div id="scene"></div>
+  <p>拖动旋转，滚轮缩放。</p>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const container = document.getElementById('scene');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0f172a);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(3.2, 2.2, 4.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.enablePan = false;
+    controls.minDistance = 2.5;
+    controls.maxDistance = 10;
+    controls.target.set(0, 0.9, 0);
+
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x334155, 1.2));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+    sun.position.set(4, 6, 3);
+    sun.castShadow = true;
+    scene.add(sun);
+
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(2.2, 48),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    const metal = new THREE.MeshStandardMaterial({ color: 0x94a3b8, flatShading: true, metalness: 0.4, roughness: 0.5 });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x0f172a, flatShading: true, roughness: 0.6 });
+    const accent = new THREE.MeshStandardMaterial({ color: 0x38bdf8, flatShading: true, roughness: 0.4 });
+
+    const robot = new THREE.Group();
+    function part(geo, mat, x, y, z) {
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(x, y, z);
+      m.castShadow = true;
+      robot.add(m);
+      return m;
+    }
+    part(new THREE.BoxGeometry(0.9, 0.9, 0.6), metal, 0, 1.05, 0);
+    part(new THREE.BoxGeometry(0.6, 0.5, 0.5), metal, 0, 1.75, 0);
+    part(new THREE.BoxGeometry(0.08, 0.08, 0.02), dark, -0.14, 1.77, 0.26);
+    part(new THREE.BoxGeometry(0.08, 0.08, 0.02), dark, 0.14, 1.77, 0.26);
+    part(new THREE.CylinderGeometry(0.03, 0.03, 0.3), metal, 0, 2.15, 0);
+    part(new THREE.SphereGeometry(0.06, 12, 12), accent, 0, 2.32, 0);
+    part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, -0.58, 1.05, 0);
+    part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, 0.58, 1.05, 0);
+    part(new THREE.BoxGeometry(0.28, 0.6, 0.3), dark, -0.22, 0.3, 0);
+    part(new THREE.BoxGeometry(0.28, 0.6, 0.3), dark, 0.22, 0.3, 0);
+    scene.add(robot);
+
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    renderer.setAnimationLoop(() => {
+      controls.update();
+      renderer.render(scene, camera);
+    });
+  </script>
 </body>
 </html>
