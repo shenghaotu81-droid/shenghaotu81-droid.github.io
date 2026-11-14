@@ -1,196 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>涂盛皓</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 16px; background: #050508; color: #e2e8f0; }
-    h1 { font-weight: 300; letter-spacing: 0.08em; position: relative; }
-    h1::before, h1::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; }
-    h1::before { color: #00f0ff; animation: glitch 3s infinite steps(1); clip-path: inset(20% 0 40% 0); transform: translate(-2px, 0); opacity: 0; }
-    h1::after { color: #ff003c; animation: glitch 3s infinite steps(1) reverse; clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); opacity: 0; }
-    @keyframes glitch { 0%, 92% { opacity: 0; } 93%, 96% { opacity: 0.8; } 97%, 100% { opacity: 0; } }
-    p { color: #94a3b8; }
-    .tag { color: #fcee0a; letter-spacing: 0.3em; font-size: 12px; }
-    #scene { height: 560px; overflow: hidden; clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
-    #scene canvas { display: block; }
-    .scanlines { position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px); }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e8e4dc">
+  <meta name="description" content="涂盛皓的空间笔记。香港科技大学（广州）2026 级学生，探索机器人、具身智能与真实世界。">
+  <title>涂盛皓 · 空间笔记</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23527c76'/%3E%3Cpath d='M18 18h28v28H18zM18 32h28M32 18v28' stroke='%23e8e4dc' fill='none' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles/gallery.css">
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"}}</script>
 </head>
 <body>
-  <div class="scanlines"></div>
-  <h1 data-text="涂盛皓">涂盛皓</h1>
-  <p>香港科技大学（广州）大一学生，机器人 / AI 方向。</p>
-  <p class="tag">/// NIGHT CITY</p>
-  <div id="scene"></div>
-  <p>拖动旋转，滚轮缩放。</p>
-
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
-    }
-  }
-  </script>
-
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
-    const container = document.getElementById('scene');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x050508);
-    scene.fog = new THREE.Fog(0x050508, 9, 20);
-
-    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(2.8, 1.9, 3.6);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
-    container.appendChild(renderer.domElement);
-
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environmentIntensity = 0.5;
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.enablePan = false;
-    controls.minDistance = 2.5;
-    controls.maxDistance = 10;
-    controls.target.set(0, 0.9, 0);
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.6;
-
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 0.35, 0.4, 0.8);
-    composer.addPass(bloom);
-    composer.addPass(new OutputPass());
-
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x1a1a2e, 0.6));
-    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-    sun.position.set(4, 6, 3);
-    sun.castShadow = true;
-    scene.add(sun);
-
-    const ground = new THREE.Mesh(
-      new THREE.CircleGeometry(2.2, 48),
-      new THREE.MeshStandardMaterial({ color: 0x0a0a12 })
-    );
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(2.2, 2.32, 64),
-      new THREE.MeshBasicMaterial({ color: 0xfcee0a, side: THREE.DoubleSide })
-    );
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.y = 0.01;
-    scene.add(ring);
-
-    const grid = new THREE.GridHelper(12, 24, 0x00f0ff, 0x1a2f4a);
-    grid.material.transparent = true;
-    grid.material.opacity = 0.3;
-    grid.position.y = -0.01;
-    scene.add(grid);
-
-    const loader = new GLTFLoader();
-    const mixers = [];
-    let flamingo;
-    function loadModel(url, scale, pos, animName, onLoad) {
-      loader.load(url, (gltf) => {
-        const m = gltf.scene;
-        m.scale.setScalar(scale);
-        m.position.set(pos[0], pos[1], pos[2]);
-        m.traverse((o) => { if (o.isMesh) o.castShadow = true; });
-        scene.add(m);
-        const mixer = new THREE.AnimationMixer(m);
-        const clip = gltf.animations.find((a) => a.name === animName);
-        if (clip) mixer.clipAction(clip).play();
-        mixers.push(mixer);
-        if (onLoad) onLoad(m);
-      });
-    }
-    loadModel('models/RobotExpressive.glb', 0.55, [-0.9, 0, 0], 'Idle');
-    loadModel('models/Xbot.glb', 1.2, [0.9, 0, 0], 'idle');
-    loadModel('models/Flamingo.glb', 0.025, [0, 3, 0], 'flamingo_flyA_', (m) => { flamingo = m; });
-
-    const buildingMat = new THREE.MeshStandardMaterial({ color: 0x0b0b14, roughness: 0.9 });
-    for (let i = 0; i < 14; i++) {
-      const a = (i / 14) * Math.PI * 2 + Math.random() * 0.3;
-      const r = 6.5 + Math.random() * 2.5;
-      const w = 0.9 + Math.random() * 0.9;
-      const h = 1.5 + Math.random() * 3.5;
-      const d = 0.9 + Math.random() * 0.9;
-      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), buildingMat);
-      b.position.set(Math.cos(a) * r, h / 2, Math.sin(a) * r);
-      scene.add(b);
-      const dir = new THREE.Vector3(Math.cos(a), 0, Math.sin(a));
-      const nWin = 1 + Math.floor(Math.random() * 3);
-      for (let j = 0; j < nWin; j++) {
-        const win = new THREE.Mesh(
-          new THREE.PlaneGeometry(0.12, 0.18),
-          new THREE.MeshBasicMaterial({ color: Math.random() < 0.5 ? 0xfcee0a : 0x00f0ff })
-        );
-        win.position.copy(b.position).addScaledVector(dir, -(d / 2 + 0.01));
-        win.position.y = 0.5 + Math.random() * (h - 0.8);
-        win.lookAt(0, win.position.y, 0);
-        scene.add(win);
-      }
-    }
-
-    const dustCount = 150;
-    const dustGeo = new THREE.BufferGeometry();
-    const pos = new Float32Array(dustCount * 3);
-    const col = new Float32Array(dustCount * 3);
-    const palette = [new THREE.Color(0x00f0ff), new THREE.Color(0xff003c), new THREE.Color(0xfcee0a)];
-    for (let i = 0; i < dustCount; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 10;
-      pos[i * 3 + 1] = Math.random() * 4;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
-      const c = palette[Math.floor(Math.random() * 3)];
-      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
-    }
-    dustGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    dustGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ size: 0.04, vertexColors: true, transparent: true, opacity: 0.7, depthWrite: false }));
-    scene.add(dust);
-
-    window.addEventListener('resize', () => {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      composer.setSize(container.clientWidth, container.clientHeight);
-    });
-
-    const clock = new THREE.Clock();
-    renderer.setAnimationLoop(() => {
-      const dt = clock.getDelta();
-      const t = clock.elapsedTime;
-      mixers.forEach((m) => m.update(dt));
-      if (flamingo) {
-        const a = t * 0.25;
-        flamingo.position.set(Math.cos(a) * 3.2, 3.0 + Math.sin(t * 0.8) * 0.3, Math.sin(a) * 3.2);
-        flamingo.rotation.y = -a;
-      }
-      dust.rotation.y += 0.0004;
-      controls.update();
-      composer.render();
-    });
-  </script>
+  <a class="skip" href="#text-content">跳到文字内容</a>
+  <div id="world" aria-label="可漫游的三维展厅"></div>
+  <header class="masthead">
+    <a class="identity" href="./" aria-label="涂盛皓，首页"><span class="brand-mark" aria-hidden="true">田</span><span><b>涂盛皓</b><small>SHENGHAO TU · PERSONAL SPACE</small></span></a>
+    <div class="header-actions"><span class="live"><i></i> <span id="open-label">开放探索</span></span><button id="lang-toggle" class="language-toggle" type="button" aria-label="切换语言 / Switch language" hidden><span data-lang="zh" class="selected">中</span><i>/</i><span data-lang="en">EN</span></button><button id="text-toggle" type="button">文字阅读 <span>↗</span></button></div>
+  </header>
+  <main>
+    <section id="welcome" class="welcome" aria-labelledby="welcome-title">
+      <p class="eyebrow">A SPACE FOR IDEAS IN MOTION</p>
+      <h1 id="welcome-title">在真实世界里，<br>寻找智能的形状<span>。</span></h1>
+      <p class="welcome-copy">我是涂盛皓，一名机器人 / AI 方向的学生。<br>欢迎走进我的空间，看看我正在探索什么。</p>
+      <div class="welcome-buttons"><button id="enter" class="primary" type="button" disabled>展厅准备中 <span>↗</span></button><button id="welcome-read" class="plain" type="button">直接阅读 <span>→</span></button></div>
+      <p id="loading-status" class="hint" role="status">文字内容可直接阅读 · 三维场景正在准备</p>
+      <noscript><style>.welcome-buttons,.header-actions,.zone-nav,#loading-status{display:none}</style><p class="hint">当前为文字阅读模式。<a href="#text-content">阅读全部内容 ↓</a></p></noscript>
+    </section>
+    <div class="space-caption" aria-hidden="true"><span>01—04</span><span>思想在这里相遇<br>EXPLORING THE PHYSICAL WORLD</span></div>
+    <nav id="zone-nav" class="zone-nav" aria-label="展区导航">
+      <button data-zone="about" type="button"><small>01</small> 关于我</button>
+      <button data-zone="work" type="button"><small>02</small> 正在做</button>
+      <button data-zone="notes" type="button"><small>03</small> 学习笔记</button>
+      <button data-zone="contact" type="button"><small>04</small> 联系方式</button>
+    </nav>
+    <div id="roam-hud" hidden>
+      <div class="reticle" aria-hidden="true"></div>
+      <div class="location"><i></i><span id="location-name">入口 · 中庭</span><small>WASD 移动 · 鼠标环顾 · E 阅读 · Esc 释放</small></div>
+      <button id="pause" class="round-button" type="button" aria-label="暂停漫游">Ⅱ</button>
+      <button id="nearby" class="nearby" type="button" hidden><span class="key">E</span><span id="nearby-label">阅读展板</span><span>↗</span></button>
+      <div id="touch-controls" class="touch-controls"><div id="joystick" aria-label="拖动移动" role="group"><span id="stick"></span><i>移动</i></div><span class="look-hint">右侧滑动 · 环顾</span></div>
+    </div>
+    <div id="resume" class="resume" hidden><button id="resume-button" class="primary" type="button">继续漫游 <span>↗</span></button><span>点击锁定视角 · Esc 随时退出</span></div>
+    <aside id="minimap" class="minimap" aria-label="展厅平面图" hidden><span>SPACE / PLAN</span><svg viewBox="0 0 140 120" aria-hidden="true"><rect x="6" y="6" width="128" height="108" rx="2"/><rect class="garden-map" x="54" y="42" width="32" height="34"/><text x="22" y="26">01</text><text x="109" y="26">02</text><text x="22" y="96">03</text><text x="109" y="96">04</text><g id="map-player"><circle r="3"/><path d="M0 -8L-3 -3H3Z"/></g></svg></aside>
+    <section id="text-content" class="text-content" tabindex="-1" aria-label="个人站文字内容">
+      <div class="text-toolbar"><span class="eyebrow">THE READING ROOM</span><button id="back-to-space" type="button" hidden>返回展厅 ↗</button></div>
+      <div id="readable">
+        <!-- GENERATED_CONTENT_START -->
+<section data-section="about"><h2>涂盛皓</h2><p>香港科技大学（广州）2026 级大一学生，机器人 / AI 方向。</p><p>长期目标</p><div class="tag-row"><span>具身智能</span><span>物理 AI</span><span>空间智能</span></div><p>Embodied AI / Physical AI / Spatial Intelligence</p><h3>正在积累的工具</h3><div class="tag-row"><span>C++</span><span>Python</span><span>ROS 2</span><span>OpenCV</span><span>Linux</span><span>Git</span></div><p>工作之外 · 吉他</p></section><section data-section="work"><h2>现在在做的事</h2><article><span class="item-status">进行中</span><h3>X Program · 视觉导航</h3><p>在四轮机器人平台上学习与实践视觉导航。</p><p>ROS 2 + LiDAR + Nav2/SLAM，四轮机器人平台。</p><div class="tag-row"><span>ROS 2</span><span>LiDAR</span><span>Nav2 / SLAM</span></div></article><article><span class="item-status">进行中</span><h3>RoboMaster · 校内赛视觉</h3><p>从装甲板检测、位姿解算到板端部署。</p><p>装甲板检测、PnP 位姿解算，MaixCAM-Pro 板端部署。</p><div class="tag-row"><span>OpenCV</span><span>PnP</span><span>MaixCAM-Pro</span></div></article><article><span class="item-status">学习中</span><h3>课程与持续学习</h3><p>把基础打牢，再向真实世界迈进一步。</p><p>C++：课内 UFUG2601 + 自学 CS106L；Honors Calculus；英语。</p><div class="tag-row"><span>C++</span><span>数学</span><span>英语</span></div></article><article><span class="item-status">长期个人项目</span><h3>AI 探索者实验室</h3><p>围绕 AI 的持续探索与知识整理。</p><p>长期个人项目「AI 探索者实验室」：品牌、知识库、视频。</p><div class="tag-row"><span>品牌</span><span>知识库</span><span>视频</span></div></article></section><section data-section="notes"><h2>学习笔记</h2><p class="empty">学习笔记待补充。这里会慢慢收集机器人、AI 与 C++ 的学习记录。</p><h3>论文与阅读</h3><p class="empty">论文与阅读记录待补充。</p></section><section data-section="contact"><h2>保持联系</h2><p>从这里，继续交流。</p><a class="content-link" href="https://github.com/shenghaotu81-droid" target="_blank" rel="noopener noreferrer"><small>GitHub</small><span>shenghaotu81-droid ↗</span></a><a class="content-link" href="https://www.tushenghao.com" target="_blank" rel="noopener noreferrer"><small>Website</small><span>www.tushenghao.com ↗</span></a><a class="content-link" href="https://oyster.stream" target="_blank" rel="noopener noreferrer"><small>Oyster</small><span>oyster.stream ↗</span></a></section>
+        <!-- GENERATED_CONTENT_END -->
+      </div>
+      <footer><span>涂盛皓 · 空间笔记</span><a href="credits.html">展品与资源鸣谢 ↗</a></footer>
+    </section>
+  </main>
+  <dialog id="reader"><div class="reader-top"><span id="reader-number" class="eyebrow"></span><div class="reader-actions"><button id="reader-lang" class="language-toggle" type="button" aria-label="切换语言 / Switch language"><span data-lang="zh" class="selected">中</span><i>/</i><span data-lang="en">EN</span></button><button id="close-reader" aria-label="关闭阅读" type="button">✕</button></div></div><div id="reader-content"></div><div class="reader-bottom">SPACE NOTES <span>慢慢走，也慢慢想。</span></div></dialog>
+  <script src="scripts/content.js" defer></script>
 </body>
 </html>

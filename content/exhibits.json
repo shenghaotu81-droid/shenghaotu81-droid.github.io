@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "id": "mech",
+      "label": "小型机甲研究展品",
+      "file": "models/exhibits/mech.glb",
+      "author": "Quaternius",
+      "license": "CC0-1.0",
+      "source": "https://quaternius.com/packs/ultimatespacekit.html",
+      "available": true,
+      "bytes": 662464
+    },
+    {
+      "id": "arm",
+      "label": "机械臂",
+      "file": "models/exhibits/robot-arm.glb",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "source": "https://kenney.nl/assets/factory-kit",
+      "available": true,
+      "bytes": 23544
+    },
+    {
+      "id": "drone",
+      "label": "飞行配角",
+      "file": "models/exhibits/companion.glb",
+      "author": "Quaternius",
+      "license": "CC0-1.0",
+      "source": "https://quaternius.com/packs/ultimatespacekit.html",
+      "available": true,
+      "bytes": 197912
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+# 本地验收记录
+
+分支：`feat/roaming-gallery`。服务器：`python3 -m http.server 8000`。没有合并 main，也没有发布。
+
+## 低负载验收策略
+
+早期软件 WebGL 连续测试造成主机过载，已停止。后续全部改为单个浏览器、半分辨率、默认关闭阴影，每段最多 45 秒，结束自动关闭。实际按键和触屏只做短时输入；四区连接性通过真实运行时碰撞数据验证，不进行长时间连续渲染或 GPU 压力测试。
+
+默认站点像素比不超过 1，漫游绘制上限 24 fps；欢迎页、暂停状态只在内容或资源变化时重绘，阅读和后台不绘制。24 fps 是上限配置，不是真机帧率测量值。高画质只能通过显式 `?quality=high` 开启。
+
+## 已通过
+
+- 桌面 1000×700：初始化、鼠标锁定、真实 WASD 短时移动、入口实体语言牌 E 键切换。
+- 手机模拟 390×844：真实触屏事件驱动摇杆，同时右侧触摸改变视角，没有横向溢出。
+- 对运行时实际碰撞体做连通性检查，入口与关于我、工作区、学习笔记、联系方式四区均连通。
+- 四区跳转后打开对应阅读面板，检查真实学校与方向、四组当前工作、空笔记与论文提示、三个联系链接。
+- 界面、展板和阅读内容中英切换；位置与视角不变。英文中的 2026 明确为 intake（入学年）。
+- 三个 CC0 GLB 均真实加载成功，包含 Meshopt 解码的机械臂；没有运行或着色器错误。
+- 欢迎页静止时渲染帧计数保持不变。
+- CDN 请求失败、无 WebGL、无 JavaScript 时可以阅读内容；无 WebGL 时仍能切换语言。
+- 仅通过替换 notes JSON 响应新增条目即可显示，无需改代码；JSON 中的 HTML 和 javascript URL 不执行。
+- 独立碰撞检查：大步长不穿透、沿墙滑动、房间边界与无障碍位移。
+- 模型 GLB 文件头、嵌入资源、字节数、动画片段与授权记录检查；模型文件总计 901,608 bytes。
+
+最后的布局调整把原创迎宾机器人与文字板错开，将机甲缩为阅读区展品，并为机械臂设置工作姿态。最终回归拆为较短的 `regression`（内容与布局）和 `assets`（留在对应区域等待按需模型）分段；一次包含反复双语切换的较长回归曾触发 45 秒保护退出，没有继续占用浏览器。
+
+## 验证范围
+
+手机使用浏览器尺寸与触控模拟，尚未在真实手机上测帧率。没有完成真实键盘长时间绕场一圈的压力测试；可达性由实际碰撞布局的连通性、短时输入和逐区阅读验证共同确认。中文系统字体在不同操作系统上会略有差别。
+
+Pages 自动生成无 JavaScript HTML 快照并发布的工作流只针对 main。需要在正式合并时将仓库 Pages Source 设为 GitHub Actions；本次没有改线上设置。
+
+## 复现
+
+```sh
+python3 scripts/build_content.py
+python3 scripts/validate_assets.py
+node scripts/navigation.test.mjs
+python3 -m http.server 8000
+```
+
+浏览器检查需要 Playwright 与对应 Chromium headless shell，在另一个终端一次运行一个分段：
+
+```sh
+python3 tests/browser_smoke.py regression
+python3 tests/browser_smoke.py assets
+python3 tests/browser_smoke.py mobile
+python3 tests/browser_smoke.py fallback
+```
+
+首次安装请使用独立 Python 环境，不需要将测试依赖加入网站。`GALLERY_TEST_URL` 可覆盖测试地址；浏览器位置可通过 Playwright 的标准环境变量指定。

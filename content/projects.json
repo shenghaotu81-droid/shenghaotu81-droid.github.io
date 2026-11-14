@@ -1,0 +1,82 @@
+{
+  "items": [
+    {
+      "id": "x-program",
+      "title": "X Program · 视觉导航",
+      "status": "进行中",
+      "summary": "在四轮机器人平台上学习与实践视觉导航。",
+      "tags": [
+        "ROS 2",
+        "LiDAR",
+        "Nav2 / SLAM"
+      ],
+      "body": "ROS 2 + LiDAR + Nav2/SLAM，四轮机器人平台。",
+      "url": "",
+      "titleEn": "X Program · Visual Navigation",
+      "statusEn": "In progress",
+      "summaryEn": "Learning and practicing navigation on a four-wheel robot platform.",
+      "bodyEn": "ROS 2 + LiDAR + Nav2/SLAM on a four-wheel robot platform."
+    },
+    {
+      "id": "robomaster",
+      "title": "RoboMaster · 校内赛视觉",
+      "status": "进行中",
+      "summary": "从装甲板检测、位姿解算到板端部署。",
+      "tags": [
+        "OpenCV",
+        "PnP",
+        "MaixCAM-Pro"
+      ],
+      "body": "装甲板检测、PnP 位姿解算，MaixCAM-Pro 板端部署。",
+      "url": "",
+      "titleEn": "RoboMaster · Campus Competition Vision",
+      "statusEn": "In progress",
+      "summaryEn": "From armor plate detection and pose estimation to on-device deployment.",
+      "bodyEn": "Armor plate detection, PnP pose estimation, and deployment on MaixCAM-Pro."
+    },
+    {
+      "id": "courses",
+      "title": "课程与持续学习",
+      "status": "学习中",
+      "summary": "把基础打牢，再向真实世界迈进一步。",
+      "tags": [
+        "C++",
+        "数学",
+        "英语"
+      ],
+      "body": "C++：课内 UFUG2601 + 自学 CS106L；Honors Calculus；英语。",
+      "url": "",
+      "titleEn": "Courses & Continuous Learning",
+      "statusEn": "Learning",
+      "summaryEn": "Building a foundation for working with the physical world.",
+      "bodyEn": "C++: UFUG2601 and independent study of CS106L; Honors Calculus; English.",
+      "tagsEn": [
+        "C++",
+        "Mathematics",
+        "English"
+      ]
+    },
+    {
+      "id": "explorer-lab",
+      "title": "AI 探索者实验室",
+      "status": "长期个人项目",
+      "summary": "围绕 AI 的持续探索与知识整理。",
+      "tags": [
+        "品牌",
+        "知识库",
+        "视频"
+      ],
+      "body": "长期个人项目「AI 探索者实验室」：品牌、知识库、视频。",
+      "url": "",
+      "titleEn": "AI Explorer Lab",
+      "statusEn": "Long-term personal project",
+      "summaryEn": "An ongoing space for exploring AI and organizing knowledge.",
+      "bodyEn": "AI Explorer Lab: brand, knowledge base, and videos.",
+      "tagsEn": [
+        "Brand",
+        "Knowledge base",
+        "Video"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "涂盛皓",
+  "nameEn": "Shenghao Tu",
+  "intro": "香港科技大学（广州）2026 级大一学生，机器人 / AI 方向。",
+  "focus": [
+    "具身智能",
+    "物理 AI",
+    "空间智能"
+  ],
+  "focusEn": "Embodied AI / Physical AI / Spatial Intelligence",
+  "skills": [
+    "C++",
+    "Python",
+    "ROS 2",
+    "OpenCV",
+    "Linux",
+    "Git"
+  ],
+  "interest": "吉他",
+  "contacts": [
+    {
+      "label": "GitHub",
+      "text": "shenghaotu81-droid",
+      "url": "https://github.com/shenghaotu81-droid"
+    },
+    {
+      "label": "Website",
+      "text": "www.tushenghao.com",
+      "url": "https://www.tushenghao.com"
+    },
+    {
+      "label": "Oyster",
+      "text": "oyster.stream",
+      "url": "https://oyster.stream"
+    }
+  ],
+  "introEn": "First-year student (2026 intake) at the Hong Kong University of Science and Technology (Guangzhou), exploring robotics and AI.",
+  "focusEnList": [
+    "Embodied AI",
+    "Physical AI",
+    "Spatial Intelligence"
+  ],
+  "interestEn": "Guitar"
+}
