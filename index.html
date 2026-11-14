@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>涂盛皓</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #0b1120; color: #e2e8f0; }
+    h1 { font-weight: 300; letter-spacing: 0.08em; }
+    p { color: #94a3b8; }
     #scene { height: 420px; border-radius: 12px; overflow: hidden; }
     #scene canvas { display: block; }
   </style>
@@ -28,10 +30,15 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
     const container = document.getElementById('scene');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0f172a);
+    scene.fog = new THREE.Fog(0x0f172a, 9, 18);
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
     camera.position.set(3.2, 2.2, 4.2);
@@ -40,6 +47,8 @@
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -48,6 +57,14 @@
     controls.minDistance = 2.5;
     controls.maxDistance = 10;
     controls.target.set(0, 0.9, 0);
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.6;
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 0.45, 0.4, 0.7);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x334155, 1.2));
     const sun = new THREE.DirectionalLight(0xffffff, 2.0);
@@ -63,9 +80,9 @@
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const metal = new THREE.MeshStandardMaterial({ color: 0x94a3b8, flatShading: true, metalness: 0.4, roughness: 0.5 });
+    const metal = new THREE.MeshStandardMaterial({ color: 0x94a3b8, flatShading: true, metalness: 0.6, roughness: 0.35 });
     const dark = new THREE.MeshStandardMaterial({ color: 0x0f172a, flatShading: true, roughness: 0.6 });
-    const accent = new THREE.MeshStandardMaterial({ color: 0x38bdf8, flatShading: true, roughness: 0.4 });
+    const accent = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 2, flatShading: true, roughness: 0.4 });
 
     const robot = new THREE.Group();
     function part(geo, mat, x, y, z) {
@@ -87,15 +104,29 @@
     part(new THREE.BoxGeometry(0.28, 0.6, 0.3), dark, 0.22, 0.3, 0);
     scene.add(robot);
 
+    const dustGeo = new THREE.BufferGeometry();
+    const dustCount = 120;
+    const pos = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 10;
+      pos[i * 3 + 1] = Math.random() * 4;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
+    }
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0x7dd3fc, size: 0.03, transparent: true, opacity: 0.5, depthWrite: false }));
+    scene.add(dust);
+
     window.addEventListener('resize', () => {
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
+      composer.setSize(container.clientWidth, container.clientHeight);
     });
 
     renderer.setAnimationLoop(() => {
+      dust.rotation.y += 0.0004;
       controls.update();
-      renderer.render(scene, camera);
+      composer.render();
     });
   </script>
 </body>
