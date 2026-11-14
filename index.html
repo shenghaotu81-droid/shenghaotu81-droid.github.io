@@ -43,6 +43,7 @@
     import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
     import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
     const container = document.getElementById('scene');
     const scene = new THREE.Scene();
@@ -57,11 +58,12 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.0;
     container.appendChild(renderer.domElement);
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environmentIntensity = 0.5;
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -74,12 +76,12 @@
 
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 0.6, 0.4, 0.55);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 0.35, 0.4, 0.8);
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x1a1a2e, 0.9));
-    const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x1a1a2e, 0.6));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
     sun.position.set(4, 6, 3);
     sun.castShadow = true;
     scene.add(sun);
@@ -106,39 +108,17 @@
     grid.position.y = -0.01;
     scene.add(grid);
 
-    const metal = new THREE.MeshStandardMaterial({ color: 0x565d6b, metalness: 0.9, roughness: 0.3 });
-    const gunmetal = new THREE.MeshStandardMaterial({ color: 0x2a2e37, metalness: 0.85, roughness: 0.45 });
-    const yellowGlow = new THREE.MeshStandardMaterial({ color: 0xfcee0a, emissive: 0xfcee0a, emissiveIntensity: 2.5, roughness: 0.4 });
-    const pinkGlow = new THREE.MeshStandardMaterial({ color: 0xff003c, emissive: 0xff003c, emissiveIntensity: 2, roughness: 0.4 });
-
-    const robot = new THREE.Group();
-    function part(geo, mat, x, y, z, rz) {
-      const m = new THREE.Mesh(geo, mat);
-      m.position.set(x, y, z);
-      if (rz) m.rotation.z = rz;
-      m.castShadow = true;
-      robot.add(m);
-      return m;
-    }
-    part(new THREE.BoxGeometry(0.9, 0.9, 0.6), metal, 0, 1.05, 0);
-    part(new THREE.BoxGeometry(0.7, 0.5, 0.02), gunmetal, 0, 0.95, 0.31);
-    part(new THREE.BoxGeometry(0.5, 0.08, 0.02), yellowGlow, 0, 1.25, 0.31);
-    part(new THREE.BoxGeometry(0.6, 0.5, 0.5), metal, 0, 1.75, 0);
-    part(new THREE.BoxGeometry(0.08, 0.08, 0.02), yellowGlow, -0.14, 1.77, 0.26);
-    part(new THREE.BoxGeometry(0.08, 0.08, 0.02), yellowGlow, 0.14, 1.77, 0.26);
-    part(new THREE.CylinderGeometry(0.03, 0.03, 0.3), metal, 0, 2.15, 0);
-    part(new THREE.SphereGeometry(0.06, 16, 16), pinkGlow, 0, 2.32, 0);
-    part(new THREE.CylinderGeometry(0.16, 0.16, 0.24), metal, -0.58, 1.35, 0, Math.PI / 2);
-    part(new THREE.CylinderGeometry(0.16, 0.16, 0.24), metal, 0.58, 1.35, 0, Math.PI / 2);
-    part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, -0.58, 1.0, 0);
-    part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, 0.58, 1.0, 0);
-    part(new THREE.BoxGeometry(0.95, 0.12, 0.65), gunmetal, 0, 0.55, 0);
-    part(new THREE.BoxGeometry(0.28, 0.6, 0.3), gunmetal, -0.22, 0.3, 0);
-    part(new THREE.BoxGeometry(0.28, 0.6, 0.3), gunmetal, 0.22, 0.3, 0);
-    part(new THREE.BoxGeometry(0.34, 0.12, 0.45), gunmetal, -0.22, 0.05, 0.03);
-    part(new THREE.BoxGeometry(0.34, 0.12, 0.45), gunmetal, 0.22, 0.05, 0.03);
-    part(new THREE.BoxGeometry(0.6, 0.7, 0.18), gunmetal, 0, 1.1, -0.38);
-    scene.add(robot);
+    const loader = new GLTFLoader();
+    let mixer;
+    loader.load('models/RobotExpressive.glb', (gltf) => {
+      const robot = gltf.scene;
+      robot.scale.setScalar(0.55);
+      robot.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+      scene.add(robot);
+      mixer = new THREE.AnimationMixer(robot);
+      const idle = gltf.animations.find((a) => a.name === 'Idle');
+      if (idle) mixer.clipAction(idle).play();
+    });
 
     const buildingMat = new THREE.MeshStandardMaterial({ color: 0x0b0b14, roughness: 0.9 });
     for (let i = 0; i < 14; i++) {
@@ -188,9 +168,10 @@
       composer.setSize(container.clientWidth, container.clientHeight);
     });
 
+    const clock = new THREE.Clock();
     renderer.setAnimationLoop(() => {
-      const t = performance.now() * 0.001;
-      pinkGlow.emissiveIntensity = 1.6 + Math.sin(t * 2.5) * 0.7;
+      const dt = clock.getDelta();
+      if (mixer) mixer.update(dt);
       dust.rotation.y += 0.0004;
       controls.update();
       composer.render();
