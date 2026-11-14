@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>涂盛皓</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #050508; color: #e2e8f0; }
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 16px; background: #050508; color: #e2e8f0; }
     h1 { font-weight: 300; letter-spacing: 0.08em; position: relative; }
     h1::before, h1::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; }
     h1::before { color: #00f0ff; animation: glitch 3s infinite steps(1); clip-path: inset(20% 0 40% 0); transform: translate(-2px, 0); opacity: 0; }
@@ -13,7 +13,7 @@
     @keyframes glitch { 0%, 92% { opacity: 0; } 93%, 96% { opacity: 0.8; } 97%, 100% { opacity: 0; } }
     p { color: #94a3b8; }
     .tag { color: #fcee0a; letter-spacing: 0.3em; font-size: 12px; }
-    #scene { height: 420px; overflow: hidden; clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
+    #scene { height: 560px; overflow: hidden; clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
     #scene canvas { display: block; }
     .scanlines { position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px); }
   </style>
@@ -42,6 +42,7 @@
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
     import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
     import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
     const container = document.getElementById('scene');
     const scene = new THREE.Scene();
@@ -49,7 +50,7 @@
     scene.fog = new THREE.Fog(0x050508, 9, 20);
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(3.2, 2.2, 4.2);
+    camera.position.set(2.8, 1.9, 3.6);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -58,6 +59,9 @@
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
     container.appendChild(renderer.domElement);
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -102,29 +106,38 @@
     grid.position.y = -0.01;
     scene.add(grid);
 
-    const metal = new THREE.MeshStandardMaterial({ color: 0x8a8f98, flatShading: true, metalness: 0.7, roughness: 0.3 });
-    const dark = new THREE.MeshStandardMaterial({ color: 0x0a0a12, flatShading: true, roughness: 0.6 });
-    const yellowGlow = new THREE.MeshStandardMaterial({ color: 0xfcee0a, emissive: 0xfcee0a, emissiveIntensity: 2.5, flatShading: true, roughness: 0.4 });
-    const pinkGlow = new THREE.MeshStandardMaterial({ color: 0xff003c, emissive: 0xff003c, emissiveIntensity: 2, flatShading: true, roughness: 0.4 });
+    const metal = new THREE.MeshStandardMaterial({ color: 0x565d6b, metalness: 0.9, roughness: 0.3 });
+    const gunmetal = new THREE.MeshStandardMaterial({ color: 0x2a2e37, metalness: 0.85, roughness: 0.45 });
+    const yellowGlow = new THREE.MeshStandardMaterial({ color: 0xfcee0a, emissive: 0xfcee0a, emissiveIntensity: 2.5, roughness: 0.4 });
+    const pinkGlow = new THREE.MeshStandardMaterial({ color: 0xff003c, emissive: 0xff003c, emissiveIntensity: 2, roughness: 0.4 });
 
     const robot = new THREE.Group();
-    function part(geo, mat, x, y, z) {
+    function part(geo, mat, x, y, z, rz) {
       const m = new THREE.Mesh(geo, mat);
       m.position.set(x, y, z);
+      if (rz) m.rotation.z = rz;
       m.castShadow = true;
       robot.add(m);
       return m;
     }
     part(new THREE.BoxGeometry(0.9, 0.9, 0.6), metal, 0, 1.05, 0);
+    part(new THREE.BoxGeometry(0.7, 0.5, 0.02), gunmetal, 0, 0.95, 0.31);
+    part(new THREE.BoxGeometry(0.5, 0.08, 0.02), yellowGlow, 0, 1.25, 0.31);
     part(new THREE.BoxGeometry(0.6, 0.5, 0.5), metal, 0, 1.75, 0);
     part(new THREE.BoxGeometry(0.08, 0.08, 0.02), yellowGlow, -0.14, 1.77, 0.26);
     part(new THREE.BoxGeometry(0.08, 0.08, 0.02), yellowGlow, 0.14, 1.77, 0.26);
     part(new THREE.CylinderGeometry(0.03, 0.03, 0.3), metal, 0, 2.15, 0);
-    part(new THREE.SphereGeometry(0.06, 12, 12), pinkGlow, 0, 2.32, 0);
-    part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, -0.58, 1.05, 0);
-    part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, 0.58, 1.05, 0);
-    part(new THREE.BoxGeometry(0.28, 0.6, 0.3), dark, -0.22, 0.3, 0);
-    part(new THREE.BoxGeometry(0.28, 0.6, 0.3), dark, 0.22, 0.3, 0);
+    part(new THREE.SphereGeometry(0.06, 16, 16), pinkGlow, 0, 2.32, 0);
+    part(new THREE.CylinderGeometry(0.16, 0.16, 0.24), metal, -0.58, 1.35, 0, Math.PI / 2);
+    part(new THREE.CylinderGeometry(0.16, 0.16, 0.24), metal, 0.58, 1.35, 0, Math.PI / 2);
+    part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, -0.58, 1.0, 0);
+    part(new THREE.BoxGeometry(0.22, 0.7, 0.22), metal, 0.58, 1.0, 0);
+    part(new THREE.BoxGeometry(0.95, 0.12, 0.65), gunmetal, 0, 0.55, 0);
+    part(new THREE.BoxGeometry(0.28, 0.6, 0.3), gunmetal, -0.22, 0.3, 0);
+    part(new THREE.BoxGeometry(0.28, 0.6, 0.3), gunmetal, 0.22, 0.3, 0);
+    part(new THREE.BoxGeometry(0.34, 0.12, 0.45), gunmetal, -0.22, 0.05, 0.03);
+    part(new THREE.BoxGeometry(0.34, 0.12, 0.45), gunmetal, 0.22, 0.05, 0.03);
+    part(new THREE.BoxGeometry(0.6, 0.7, 0.18), gunmetal, 0, 1.1, -0.38);
     scene.add(robot);
 
     const buildingMat = new THREE.MeshStandardMaterial({ color: 0x0b0b14, roughness: 0.9 });
@@ -176,6 +189,8 @@
     });
 
     renderer.setAnimationLoop(() => {
+      const t = performance.now() * 0.001;
+      pinkGlow.emissiveIntensity = 1.6 + Math.sin(t * 2.5) * 0.7;
       dust.rotation.y += 0.0004;
       controls.update();
       composer.render();
