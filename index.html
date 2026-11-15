@@ -19,7 +19,7 @@
   </header>
   <main>
     <section id="welcome" class="welcome" aria-labelledby="welcome-title">
-      <p class="eyebrow">A SPACE FOR IDEAS IN MOTION</p>
+      <p class="eyebrow">A QUIET PLACE TO EXPLORE</p>
       <h1 id="welcome-title">在真实世界里，<br>寻找智能的形状<span>。</span></h1>
       <p class="welcome-copy">我是涂盛皓，一名机器人 / AI 方向的学生。<br>欢迎走进我的空间，看看我正在探索什么。</p>
       <div class="welcome-buttons"><button id="enter" class="primary" type="button" disabled>展厅准备中 <span>↗</span></button><button id="welcome-read" class="plain" type="button">直接阅读 <span>→</span></button></div>
@@ -37,11 +37,12 @@
       <div class="reticle" aria-hidden="true"></div>
       <div class="location"><i></i><span id="location-name">入口 · 中庭</span><small>WASD 移动 · 鼠标环顾 · E 阅读 · Esc 释放</small></div>
       <button id="pause" class="round-button" type="button" aria-label="暂停漫游">Ⅱ</button>
+      <button id="home-button" class="round-button home-button" type="button" aria-label="回到研究所入口" title="R · 回到入口">⌂</button>
       <button id="nearby" class="nearby" type="button" hidden><span class="key">E</span><span id="nearby-label">阅读展板</span><span>↗</span></button>
-      <div id="touch-controls" class="touch-controls"><div id="joystick" aria-label="拖动移动" role="group"><span id="stick"></span><i>移动</i></div><span class="look-hint">右侧滑动 · 环顾</span></div>
+      <div id="touch-controls" class="touch-controls"><div id="joystick" aria-label="拖动移动，推至外圈快跑" role="group"><span id="stick"></span><i>移动</i></div><button id="jump-button" class="jump-button" type="button" aria-label="跳跃" disabled><span aria-hidden="true">↑</span><small id="jump-label">跳跃</small></button><span class="look-hint">右侧滑动 · 环顾</span></div>
     </div>
     <div id="resume" class="resume" hidden><button id="resume-button" class="primary" type="button">继续漫游 <span>↗</span></button><span>点击锁定视角 · Esc 随时退出</span></div>
-    <aside id="minimap" class="minimap" aria-label="展厅平面图" hidden><span>SPACE / PLAN</span><svg viewBox="0 0 140 120" aria-hidden="true"><rect x="6" y="6" width="128" height="108" rx="2"/><rect class="garden-map" x="54" y="42" width="32" height="34"/><text x="22" y="26">01</text><text x="109" y="26">02</text><text x="22" y="96">03</text><text x="109" y="96">04</text><g id="map-player"><circle r="3"/><path d="M0 -8L-3 -3H3Z"/></g></svg></aside>
+    <aside id="minimap" class="minimap" aria-label="海岸研究所地图" hidden><span>COAST / PLAN</span><svg viewBox="0 0 140 120" aria-hidden="true"><ellipse class="island-map" cx="70" cy="60" rx="56" ry="47"/><path class="trail-map" d="M70 78C91 83 99 59 90 43S51 33 47 53 46 79 70 78"/><rect class="studio-map" x="59" y="50" width="22" height="20"/><rect class="deck-map" x="101" y="65" width="18" height="4"/><text x="55" y="47">STUDIO</text><g id="map-player"><circle r="3"/><path d="M0 -8L-3 -3H3Z"/></g></svg></aside>
     <section id="text-content" class="text-content" tabindex="-1" aria-label="个人站文字内容">
       <div class="text-toolbar"><span class="eyebrow">THE READING ROOM</span><button id="back-to-space" type="button" hidden>返回展厅 ↗</button></div>
       <div id="readable">

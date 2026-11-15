@@ -1,6 +1,6 @@
 # 本地验收记录
 
-分支：`feat/roaming-gallery`。服务器：`python3 -m http.server 8000`。没有合并 main，也没有发布。
+本文件记录稳定展厅 `1913eff` 的验收。该版本现已按用户确认合入并推送到 main，Actions 构建及发布成功。本轮开放世界的验收见 [open-world-verification.md](open-world-verification.md)。
 
 ## 低负载验收策略
 
@@ -30,22 +30,6 @@
 
 Pages 自动生成无 JavaScript HTML 快照并发布的工作流只针对 main。需要在正式合并时将仓库 Pages Source 设为 GitHub Actions；本次没有改线上设置。
 
-## 复现
+## 当前验证方式
 
-```sh
-python3 scripts/build_content.py
-python3 scripts/validate_assets.py
-node scripts/navigation.test.mjs
-python3 -m http.server 8000
-```
-
-浏览器检查需要 Playwright 与对应 Chromium headless shell，在另一个终端一次运行一个分段：
-
-```sh
-python3 tests/browser_smoke.py regression
-python3 tests/browser_smoke.py assets
-python3 tests/browser_smoke.py mobile
-python3 tests/browser_smoke.py fallback
-```
-
-首次安装请使用独立 Python 环境，不需要将测试依赖加入网站。`GALLERY_TEST_URL` 可覆盖测试地址；浏览器位置可通过 Playwright 的标准环境变量指定。
+本文件是稳定版历史记录。随后发生 WSL 软件渲染崩溃，自动浏览器脚本已经删除，不得在此 WSL 重跑。当前使用 Node 纯 CPU 和静态 HTTP 检查，命令见 README，当前迭代记录见 `open-world-verification.md`。

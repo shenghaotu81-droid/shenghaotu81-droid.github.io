@@ -634,3 +634,17 @@ html[lang=en] .roaming .zone-nav { left: 23%; right: 23%; }
 .resume > span { font-size: 9px; }
 @media (max-width: 700px) { .resume { left: 22px; bottom: 360px; } }
 .roaming .masthead { background: linear-gradient(180deg, #e8e4dcf2, #e8e4dca6 68%, transparent); }
+/* Coastal world: quiet controls, with the landscape allowed to fill the screen. */
+.home-button { top: 163px; font-size: 20px; }
+.jump-button { position: fixed; bottom: 148px; right: 28px; width: 56px; height: 56px; border: 1px solid #527c7666; border-radius: 50%; background: #f3f0e3b8; display: grid; place-content: center; gap: 1px; touch-action: none; }
+.jump-button > span { font-size: 20px; line-height: 1; }
+.jump-button small { font-size: 8px; }
+.jump-button:disabled { cursor: default; opacity: .35; }
+#joystick.running { border-color: #527c76; background: #527c7628; }
+.minimap .island-map { fill: #d3d5bf; stroke: #a4b5a8; stroke-width: .8; }
+.minimap .trail-map { fill: none; stroke: #f1ebd6; stroke-width: 2; }
+.minimap .studio-map { fill: #f8f4e8; stroke: #6c8479; }
+.minimap .deck-map { fill: #a99d7d; stroke: none; }
+.minimap #map-player path { fill: var(--green); stroke: none; }
+@media (pointer: coarse) { .minimap { display: none !important; } .look-hint { bottom: 113px; } }
+@media (max-width: 700px) { .home-button { top: 135px; right: 22px; } .scene-ready:not(.roaming):not(.reading)::after { background: linear-gradient(180deg,#e8e4dcf5 0%,#e8e4dce8 22%,#e8e4dc66 49%,transparent 68%); } }

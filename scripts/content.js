@@ -22,6 +22,7 @@
     document.querySelector('.location small').textContent=ui.controls;document.querySelector('.look-hint').textContent=ui.look;document.querySelector('#joystick i').textContent=ui.move;document.querySelector('#resume>span').textContent=matchMedia('(pointer: coarse)').matches?ui.mobileResumeHint:ui.resumeHint;
     document.querySelector('.space-caption>span:last-child').replaceChildren(document.createTextNode(ui.caption),el('br'),document.createTextNode('EXPLORING THE PHYSICAL WORLD'));
     $('close-reader').setAttribute('aria-label',ui.close);$('pause').setAttribute('aria-label',ui.pause);
+    $('home-button').setAttribute('aria-label',ui.home);$('home-button').title='R · '+ui.home;$('jump-button').setAttribute('aria-label',ui.jump);$('jump-label').textContent=ui.jump;
     document.querySelector('.reader-bottom span').textContent=ui.slow;
     document.querySelector('footer>span').textContent=ui.footer;document.querySelector('footer>a').textContent=ui.credits+' ↗';
     document.querySelectorAll('[data-zone]').forEach((b,i)=>b.replaceChildren(el('small',String(i+1).padStart(2,'0')),document.createTextNode(' '+ui[b.dataset.zone==='work'?'workShort':b.dataset.zone])));
